@@ -1,6 +1,6 @@
 <template>
   <div class="login-container">
-    <el-form ref="loginForm" class="login-form">
+    <el-form ref="loginForm" :rules="loginRules" :model="loginForm" class="login-form">
       <h3 class="title">欢迎来到神奇的世界</h3>
       <el-form-item prop="username">
         <span class="svg-container">
@@ -13,27 +13,90 @@
           <svg-icon icon-class="password" />
         </span>
         <el-input v-model="loginForm.password" :type="passwordType" name="password" placeholder="password" />
-        <span class="show-pwd">
+        <span class="show-pwd" @click="showPassword()">
           <svg-icon icon-class="eye" />
         </span>
       </el-form-item>
       <el-form-item>
-        <el-button class="loginButton">登录</el-button>
+        <el-button :disabled="loading" :loading="loading" type="primary" class="login-button" @click="handleLogin">登录</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 <script>
+import { isValidUserName, isValidPassword } from '@/utils/validate'
+import { Message } from 'element-ui'
 
 export default {
   name: 'Login',
   data() {
+    const usernameValidator = (rule, value, callback) => {
+      if (!isValidUserName(value)) {
+        callback(new Error('请输入正确的用户名'))
+      } else {
+        callback()
+      }
+    }
+
+    const passwordValidator = (rule, value, callback) => {
+      if (!isValidPassword(value)) {
+        callback(new Error('请输入正确的密码'))
+      } else {
+        callback()
+      }
+    }
+
     return {
       loginForm: {
-        username: 'admin1',
-        password: 'admin'
+        username: 'admin',
+        password: 'password'
       },
-      passwordType: 'password'
+      loginRules: {
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          { validator: usernameValidator, trigger: 'blur' }
+        ],
+        password: [
+          { required: true, trigger: 'blur' },
+          { validator: passwordValidator, trigger: 'blur' }
+        ]
+      },
+      passwordType: 'password',
+      loading: false
+    }
+  },
+  methods: {
+    showPassword() {
+      if (this.passwordType === 'password') {
+        this.passwordType = 'text'
+      } else {
+        this.passwordType = 'password'
+      }
+    },
+    handleLogin() {
+      this.$refs.loginForm.validate((valid) => {
+        if (valid) {
+          this.loading = true
+          this.$store.dispatch('Login', this.loginForm).then(() => {
+            Message({
+              message: '登录成功',
+              type: 'success',
+              duration: 5 * 1000
+            })
+            this.loading = false
+          }).catch(() => {
+            this.loading = false
+          })
+        } else {
+          console.log('login error')
+          Message({
+            message: '请输入正确的用户名和密码',
+            type: 'warning',
+            duration: 5 * 1000
+          })
+          return false
+        }
+      })
     }
   }
 }
@@ -109,6 +172,9 @@ $light_gray: #eee;
     color: $dark_gray;
     cursor: pointer;
     user-select: none;
+  }
+  .login-button {
+    width: 100%;
   }
 }
 </style>
