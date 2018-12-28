@@ -1,18 +1,13 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import Layout from '@/views/layout/Layout'
 
 Vue.use(Router)
 
 const constantRouterMap = [
-  {
-    path: '/',
-    component: () => import('@/views/login/index'),
-    redirect: '/login'
-  },
-  {
-    path: '/login',
-    component: () => import('@/views/login/index')
-  }
+  { path: '/login', component: () => import('@/views/login') },
+  { path: '/', redirect: '/dashboard' },
+  { path: '/dashboard', component: Layout }
 ]
 
 export default new Router({

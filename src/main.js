@@ -13,6 +13,7 @@ import router from './router'
 import store from './store'
 
 import '@/icons'
+import './router/permission'
 
 Vue.use(Element, { locale })
 

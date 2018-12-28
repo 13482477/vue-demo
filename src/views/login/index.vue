@@ -83,6 +83,7 @@ export default {
               type: 'success',
               duration: 5 * 1000
             })
+            this.$router.push('/dashboard')
             this.loading = false
           }).catch(() => {
             this.loading = false
